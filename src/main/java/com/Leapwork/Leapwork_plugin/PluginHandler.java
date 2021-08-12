@@ -411,6 +411,9 @@ public final class PluginHandler {
 			}
 		}
 
+		catch(RuntimeException e) {
+			throw e;
+		}
 		catch (Exception e) {
 			listener.error(String.format(Messages.STOP_RUN_FAIL, scheduleTitle, runId.toString()));
 			listener.error(e.getMessage());
