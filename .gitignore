@@ -1,7 +1,9 @@
-/target/*
-/target/
+target
+
+# mvn hpi:run
+/work
+
+# Eclipse project files
+/.settings
 /.classpath
 /.project
-/.metadata/*
-/.settings/*
-/pom.xml.versionsBackup
