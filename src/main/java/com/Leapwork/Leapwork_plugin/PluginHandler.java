@@ -350,6 +350,7 @@ public final class PluginHandler {
 		return null;
 	}
 
+	@SuppressFBWarnings(value = "REC_CATCH_EXCEPTION")
 	public boolean stopRun(String controllerApiHttpAddress, UUID runId, String scheduleTitle, String accessKey,
 			final TaskListener listener) {
 		boolean isSuccessfullyStopped = false;
@@ -411,9 +412,6 @@ public final class PluginHandler {
 			}
 		}
 
-		catch(RuntimeException e) {
-			throw e;
-		}
 		catch (Exception e) {
 			listener.error(String.format(Messages.STOP_RUN_FAIL, scheduleTitle, runId.toString()));
 			listener.error(e.getMessage());
