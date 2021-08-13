@@ -5,3 +5,4 @@
 /.metadata/*
 /.mvn/*
 /.settings/*
+/pom.xml.versionsBackup
