@@ -3,6 +3,5 @@
 /.classpath
 /.project
 /.metadata/*
-/.mvn/*
 /.settings/*
 /pom.xml.versionsBackup
