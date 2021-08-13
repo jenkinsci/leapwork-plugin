@@ -9,9 +9,10 @@
 	</parent>
 	<groupId>io.jenkins.plugins</groupId>
 	<artifactId>leapwork</artifactId>
-	 <version>4.0.1-SNAPSHOT</version>
-	<packaging>hpi</packaging>
+        <version>${changelist}</version>
+        <packaging>hpi</packaging>
 	<properties>
+                <changelist>999999-SNAPSHOT</changelist>
 		<revision>4.0.1</revision>
 		<changelist>-SNAPSHOT</changelist>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have 
