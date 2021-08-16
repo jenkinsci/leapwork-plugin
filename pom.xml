@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>4.23</version>
+		<version>4.24</version>
 		<relativePath />
 	</parent>
 	<groupId>io.jenkins.plugins</groupId>
 	<artifactId>leapwork</artifactId>
-	 <version>${revision}${changelist}</version>
+	<version>${revision}${changelist}</version>
 	<packaging>hpi</packaging>
 	<properties>
 		<revision>4.0.1</revision>
@@ -32,7 +34,7 @@
 				<!-- Pick up common dependencies for the selected LTS line: https://github.com/jenkinsci/bom#usage -->
 				<groupId>io.jenkins.tools.bom</groupId>
 				<artifactId>bom-2.277.x</artifactId>
-				<version>25</version>
+				<version>923.v08bdc07cd40f</version>
 				<scope>import</scope>
 				<type>pom</type>
 			</dependency>
@@ -79,11 +81,7 @@
 			<artifactId>gson</artifactId>
 			<version>2.8.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.jenkins-ci.plugins</groupId>
-			<artifactId>jquery</artifactId>
-			<version>1.11.2-1</version>
-		</dependency>
+		
 		<dependency>
 			<groupId>org.jenkins-ci.plugins</groupId>
 			<artifactId>anything-goes-formatter</artifactId>
@@ -139,7 +137,7 @@
 	</developers>
 
 	<scm>
-	<connection>scm:git:https://github.com/${gitHubRepo}</connection>
+		<connection>scm:git:https://github.com/${gitHubRepo}</connection>
 		<developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
 		<url>https://github.com/${gitHubRepo}</url>
 		<tag>${scmTag}</tag>
