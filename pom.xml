@@ -14,10 +14,9 @@
 	<version>${revision}${changelist}</version>
 	<packaging>hpi</packaging>
 	<properties>
-		<revision>4.0.1</revision>
+		<revision>4.0.2</revision>
 		<changelist>-SNAPSHOT</changelist>
 		<gitHubRepo>jenkinsci/leapwork-plugin</gitHubRepo>
-		<revision>4.0.1</revision>
 		<changelist>-SNAPSHOT</changelist>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have 
 			this version or newer to run. -->
