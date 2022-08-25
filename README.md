@@ -1,4 +1,4 @@
-# Leapwork Integration
+step([$class: 'LeapworkJenkinsBridgeBuilder', leapworkAccessKey: <object of type hudson.util.Secret>, leapworkDelay: '5', leapworkDoneStatusAs: 'Success', leapworkEnableHttps: false, leapworkHostname: 'localhost', leapworkPort: '9001', leapworkReport: 'report.xml', leapworkSchIds: 'd8d06666-c08a-4e32-b8ec-c4c54bf62042', leapworkSchNames: 'NF2R2S1', leapworkScheduleVariables: '', leapworkWritePassedFlowKeyFrames: false])# Leapwork Integration
 This is Leapwork plugin for Jenkins (version 2.277.1 or later)
 
 # More Details
@@ -33,23 +33,20 @@ Leapwork is a mighty automation testing system and now it can be used for runnin
 # Pipeline
 This is an example script for pipeline:
  ```
-node{
- stage ('Leapwork') {
-    step([$class: "LeaptestJenkinsBridgeBuilder",
-      LeapworkHostname: "win10-agent2",
-      LeapworkPort: "9001",
-      LeapworkAccessKey: "9Kz0qeoIhhNo48Id",
-      LeapworkDelay: "5",
-      LeapworkDoneStatusAs: "Success", //"Failed"
-      LeapworkReport: "report.xml",
-      LeapworkSchIds: "",//"9c3fa950-d1e8-4e12-bf17-ebc945defad5\ndb5c3a25-8eec-434c-8526-c1b2ef9c56f2",   // splitters: "\n" "," ", "
-      LeapworkSchNames: "Problem schedule, Open Applications,    sch, sch 2,sch 3,sch 4      ,        sch 5",
-      LeapworkWritePassedFlowKeyFrames: false,
-      LeapworkScheduleVariables: "var1:val1, var2 : val2,      var3: val3,var4   :   val4,       var5:    val5"
+steps{
+	step([$class: 'LeapworkJenkinsBridgeBuilder',
+	leapworkAccessKey: 'qwertyui',
+	leapworkDelay: '5',
+	leapworkDoneStatusAs: 'Success',
+	leapworkHostname: 'localhost',
+	leapworkPort: '9001',
+	leapworkReport: 'report.xml',
+	leapworkSchIds: '',//'9c3fa950-d1e8-4e12-bf17-ebc945defad5\ndb5c3a25-8eec-434c-8526-c1b2ef9c56f2',   // splitters: "\n" "," ", "
+    leapworkSchNames: 'Problem schedule, Open Applications,    sch, sch 2,sch 3,sch 4      ,        sch 5',
+    leapworkWritePassedFlowKeyFrames: false,
+    leapworkScheduleVariables: 'var1:val1, var2 : val2,      var3: val3,var4   :   val4,       var5:    val5'
     ]);
-
     step([$class: "JUnitResultArchiver", testResults: "report.xml"]);
-
     if(currentBuild.result != "FAILURE") {
       echo "RESULT: ${currentBuild.result}  SUCCESS INFO"
       // do something else

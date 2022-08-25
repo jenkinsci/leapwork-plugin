@@ -22,6 +22,7 @@ public class Messages {
 
 	public static final String CASE_INFORMATION = "RunItem: %1$s | Status: %2$s | Elapsed: %3$s";
 	public static final String CASE_STACKTRACE_FORMAT = "%1$s - %2$s";
+	public static final String  CASE_STACKTRACE_FORMAT_BLOCKTITLE = "%1$s - %2$s - %3$s";
 
 	public static final String GET_ALL_AVAILABLE_SCHEDULES_URI = "%1$s/api/v4/schedules";
 	public static final String RUN_SCHEDULE_URI = "%1$s/api/v4/schedules/%2$s/runNow%3$s";
@@ -82,6 +83,7 @@ public class Messages {
 	public static final String INPUT_VALUES_MESSAGE = "Leapwork Plugin input parameters:";
 	public static final String INPUT_HOSTNAME_VALUE = "Leapwork controller hostname: %1$s";
 	public static final String INPUT_PORT_VALUE = "Leapwork controller port: %1$s";
+	public static final String INPUT_ENABLE_HTTPS = "Leapwork Https Port is Enabled : %1$s";
 	public static final String INPUT_ACCESS_KEY_VALUE = "Leapwork controller Access Key: %1$s";
 	public static final String INPUT_REPORT_VALUE = "JUnit report file name: %1$s";
 	public static final String INPUT_WORKSPACE_VALUE = "Workspace: %1$s";

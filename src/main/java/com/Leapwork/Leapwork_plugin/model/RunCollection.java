@@ -1,7 +1,12 @@
 package com.Leapwork.Leapwork_plugin.model;
 
-import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "testsuites")
 @XmlAccessorType(XmlAccessType.NONE)

@@ -1,6 +1,5 @@
 package com.Leapwork.Leapwork_plugin;
 
-import hudson.util.Secret;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -34,6 +33,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import hudson.util.Secret;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 
@@ -48,15 +48,17 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	private final String leapworkSchIds;
 	private final String leapworkSchNames;
 	private boolean leapworkWritePassedFlowKeyFrames;
+	private boolean leapworkEnableHttps;
 	private String leapworkScheduleVariables;
 
 	private static PluginHandler pluginHandler = PluginHandler.getInstance();
+
 	// Fields in config.jelly must match the parameter names in the
 	// "DataBoundConstructor"
 	@DataBoundConstructor
 	public LeapworkJenkinsBridgeBuilder(String leapworkHostname, String leapworkPort, String leapworkAccessKey,
 			String leapworkDelay, String leapworkDoneStatusAs, String leapworkReport, String leapworkSchNames,
-			String leapworkSchIds/* , boolean leapworkWritePassedFlowKeyFrames */) {
+			String leapworkSchIds, boolean leapworkWritePassedFlowKeyFrames, boolean leapworkEnableHttps) {
 
 		this.leapworkHostname = leapworkHostname;
 		this.leapworkPort = leapworkPort;
@@ -66,7 +68,8 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		this.leapworkReport = leapworkReport;
 		this.leapworkSchIds = leapworkSchIds;
 		this.leapworkSchNames = leapworkSchNames;
-		// this.leapworkWritePassedFlowKeyFrames = leapworkWritePassedFlowKeyFrames;
+		this.leapworkEnableHttps = leapworkEnableHttps;
+		this.leapworkWritePassedFlowKeyFrames = leapworkWritePassedFlowKeyFrames;
 	}
 
 	@DataBoundSetter
@@ -87,6 +90,11 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	@DataBoundSetter
 	public void setLeapworkWritePassedFlowKeyFrames(boolean leapworkWritePassedFlowKeyFrames) {
 		this.leapworkWritePassedFlowKeyFrames = leapworkWritePassedFlowKeyFrames;
+	}
+
+	@DataBoundSetter
+	public void setLeapworkEnableHttps(boolean leapworkEnableHttps) {
+		this.leapworkEnableHttps = leapworkEnableHttps;
 	}
 
 	@DataBoundSetter
@@ -134,6 +142,10 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		return leapworkScheduleVariables;
 	}
 
+	public boolean isLeapworkEnableHttps() {
+		return leapworkEnableHttps;
+	}
+
 	// @Override
 	public void perform(final Run<?, ?> build, FilePath workspace, Launcher launcher, final TaskListener listener)
 			throws IOException, InterruptedException {
@@ -146,13 +158,15 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 				DescriptorImpl.DEFAULT_REPORT_NAME);
 		printPluginInputs(listener, workspacePath);
 
-		ArrayList<String> rawScheduleList = pluginHandler.getRawScheduleList(leapworkSchIds, leapworkSchNames);
-		String controllerApiHttpAddress = pluginHandler.getControllerApiHttpAdderess(leapworkHostname, leapworkPort,
-				listener);
-
 		int timeDelay = pluginHandler.getTimeDelay(leapworkDelay, listener);
 		boolean isDoneStatusAsSuccess = pluginHandler.isDoneStatusAsSuccess(leapworkDoneStatusAs);
 		boolean writePassedKeyframes = isLeapworkWritePassedFlowKeyFrames();
+		boolean enableHttps = isLeapworkEnableHttps();
+
+		ArrayList<String> rawScheduleList = pluginHandler.getRawScheduleList(leapworkSchIds, leapworkSchNames);
+		String controllerApiHttpAddress = pluginHandler.getControllerApiHttpAdderess(leapworkHostname, leapworkPort,
+				enableHttps,
+				listener);
 
 		String scheduleVariablesRequestPart = pluginHandler
 				.getScheduleVariablesRequestPart(getLeapworkScheduleVariables(), listener);
@@ -291,43 +305,47 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 
 					String status = runItem.getCaseStatus();
 
-					resultRun.addTime(runItem.getElapsedTime());
+					
 					switch (status) {
-					case "NoStatus":
-					case "Initializing":
-					case "Connecting":
-					case "Connected":
-					case "Running":
-					case "IsProcessing":
-						iter.remove();
-						break;
-					case "Passed":
-						resultRun.incPassed();
-						resultRun.runItems.add(runItem);
-						resultRun.incTotal();
-						break;
-					case "Failed":
-						resultRun.incFailed();
-						resultRun.runItems.add(runItem);
-						resultRun.incTotal();
-						break;
-					case "Error":
-					case "Inconclusive":
-					case "Timeout":
-					case "Cancelled":
-						resultRun.incErrors();
-						resultRun.runItems.add(runItem);
-						resultRun.incTotal();
-						break;
-					case "Done":
-						resultRun.runItems.add(runItem);
-						if (isDoneStatusAsSuccess)
+						case "NoStatus":
+						case "Initializing":
+						case "Connecting":
+						case "Connected":
+						case "Running":
+						case "IsProcessing":
+							iter.remove();
+							break;
+						case "Passed":
 							resultRun.incPassed();
-						else
+							resultRun.runItems.add(runItem);
+							resultRun.incTotal();
+							resultRun.addTime(runItem.getElapsedTime());
+							break;
+						case "Failed":
 							resultRun.incFailed();
-						resultRun.incTotal();
-						break;
-					default:
+							resultRun.runItems.add(runItem);
+							resultRun.incTotal();
+							resultRun.addTime(runItem.getElapsedTime());
+							break;
+						case "Error":
+						case "Inconclusive":
+						case "Timeout":
+						case "Cancelled":
+							resultRun.incErrors();
+							resultRun.runItems.add(runItem);
+							resultRun.incTotal();
+							resultRun.addTime(runItem.getElapsedTime());
+							break;
+						case "Done":
+							resultRun.runItems.add(runItem);
+							resultRun.addTime(runItem.getElapsedTime());
+							if (isDoneStatusAsSuccess)
+								resultRun.incPassed();
+							else
+								resultRun.incFailed();
+							resultRun.incTotal();
+							break;
+						default:
 					}
 
 				}
@@ -375,7 +393,6 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		listener.getLogger().println(Messages.CASE_CONSOLE_LOG_SEPARATOR);
 		listener.getLogger().println(String.format(Messages.INPUT_HOSTNAME_VALUE, getLeapworkHostname()));
 		listener.getLogger().println(String.format(Messages.INPUT_PORT_VALUE, getLeapworkPort()));
-		// listener.getLogger().println(String.format(Messages.INPUT_ACCESS_KEY_VALUE,getLeapworkAccessKey()));
 		listener.getLogger().println(String.format(Messages.INPUT_REPORT_VALUE, getLeapworkReport()));
 		listener.getLogger().println(String.format(Messages.INPUT_WORKSPACE_VALUE, workspace));
 		listener.getLogger().println(String.format(Messages.INPUT_SCHEDULE_NAMES_VALUE, getLeapworkSchNames()));
@@ -384,7 +401,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		listener.getLogger().println(String.format(Messages.INPUT_DONE_VALUE, getLeapworkDoneStatusAs()));
 		listener.getLogger().println(String.format(Messages.INPUT_WRITE_PASSED, isLeapworkWritePassedFlowKeyFrames()));
 		listener.getLogger().println(String.format(Messages.INPUT_VARIABLES, getLeapworkScheduleVariables()));
-
+		listener.getLogger().println(String.format(Messages.INPUT_ENABLE_HTTPS, isLeapworkEnableHttps()));
 	}
 
 	@Override
@@ -413,6 +430,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		public static final String DEFAULT_DELAY = "5";
 		public static final String DEFAULT_REPORT_NAME = "report.xml";
 		public static final boolean DEFAULT_WRITE_PASSED_FLOW_KEYFRAMES = false;
+		public static final boolean DEFAULT_ENABLE_lEAPWORK_HTTPS = false;
 
 		public FormValidation doCheckLeapworkDelay(@QueryParameter("leapworkDelay") String delay) {
 			int temp;
@@ -438,6 +456,10 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 
 		public boolean getDefaultLeapworkWritePassedFlowKeyFrames() {
 			return DEFAULT_WRITE_PASSED_FLOW_KEYFRAMES;
+		}
+
+		public boolean getDefaultEnableLeapworkHTTPS() {
+			return DEFAULT_ENABLE_lEAPWORK_HTTPS;
 		}
 
 		public String getDisplayName() {

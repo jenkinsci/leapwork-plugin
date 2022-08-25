@@ -1,6 +1,28 @@
 package com.Leapwork.Leapwork_plugin;
 
-import com.Leapwork.Leapwork_plugin.model.*;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.ConnectException;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+
+import com.Leapwork.Leapwork_plugin.model.Failure;
+import com.Leapwork.Leapwork_plugin.model.InvalidSchedule;
+import com.Leapwork.Leapwork_plugin.model.LeapworkRun;
+import com.Leapwork.Leapwork_plugin.model.RunCollection;
+import com.Leapwork.Leapwork_plugin.model.RunItem;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -11,19 +33,11 @@ import com.ning.http.client.Response;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.EnvVars;
 import hudson.FilePath;
-import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.io.*;
-import java.net.ConnectException;
-import java.net.UnknownHostException;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 
 public final class PluginHandler {
 
@@ -115,24 +129,47 @@ public final class PluginHandler {
 		return doneStatusAs.contentEquals("Success");
 	}
 
-	public String getControllerApiHttpAdderess(String hostname, String rawPort, TaskListener listener) {
+	public String getControllerApiHttpAdderess(String hostname, String rawPort, boolean enableHttps,
+			TaskListener listener) {
 		StringBuilder stringBuilder = new StringBuilder();
-		int port = getPortNumber(rawPort, listener);
-		stringBuilder.append("http://").append(hostname).append(":").append(port);
+		int port = getPortNumber(rawPort, enableHttps, listener);
+		if (enableHttps)
+			stringBuilder.append("https://").append(hostname).append(":").append(port);
+		else
+			stringBuilder.append("http://").append(hostname).append(":").append(port);
 		return stringBuilder.toString();
 	}
 
-	private int getPortNumber(String rawPortStr, TaskListener listener) {
-		int defaultPortNumber = 9001;
+	private int getPortNumber(String rawPortStr, boolean enableHttps, TaskListener listener) {
+		int defaultPortNumber;
+		int defaultHttpPortNumber = 9001;
+		int defaultHttpsPortNumber = 9002;
 		try {
 			if (!rawPortStr.isEmpty() || !"".equals(rawPortStr))
 				return Integer.parseInt(rawPortStr);
 			else {
-				listener.getLogger().println(String.format(Messages.PORT_NUMBER_IS_INVALID, defaultPortNumber));
+				
+				if(enableHttps) {
+					defaultPortNumber = defaultHttpsPortNumber;
+					listener.getLogger().println(String.format(Messages.PORT_NUMBER_IS_INVALID, defaultPortNumber));
+					
+				}
+				else { 
+					defaultPortNumber = defaultHttpPortNumber;
+					listener.getLogger().println(String.format(Messages.PORT_NUMBER_IS_INVALID, defaultPortNumber));
+					}
 				return defaultPortNumber;
 			}
 		} catch (Exception e) {
-			listener.getLogger().println(String.format(Messages.PORT_NUMBER_IS_INVALID, defaultPortNumber));
+			if(enableHttps) {
+				defaultPortNumber = defaultHttpsPortNumber;
+				listener.getLogger().println(String.format(Messages.PORT_NUMBER_IS_INVALID, defaultPortNumber));
+				
+			}
+			else { 
+				defaultPortNumber = defaultHttpPortNumber;
+				listener.getLogger().println(String.format(Messages.PORT_NUMBER_IS_INVALID, defaultPortNumber));
+				}
 			return defaultPortNumber;
 		}
 	}
@@ -423,11 +460,15 @@ public final class PluginHandler {
 
 	public void createJUnitReport(FilePath workspace, String JUnitReportFile, final TaskListener listener,
 			RunCollection buildResult) throws Exception {
-		try {
+		try {	
 			FilePath reportFile;
 			if (workspace.isRemote()) {
+				String fileName = "/" + JUnitReportFile;
+				
 				VirtualChannel channel = workspace.getChannel();
-				reportFile = new FilePath(channel, Paths.get(workspace.toURI().getPath(), JUnitReportFile).toString());
+				URI uri = workspace.toURI();
+				String workspacePathUrl = Paths.get(Paths.get(uri).toString(), JUnitReportFile).toString();
+				reportFile = new FilePath(channel, workspacePathUrl);
 				listener.getLogger()
 						.println(String.format(Messages.FULL_REPORT_FILE_PATH, reportFile.toURI().getPath()));
 			} else {
@@ -609,12 +650,12 @@ public final class PluginHandler {
 			// AgentInfo
 			JsonElement jsonAgentInfo = jsonRunItem.get("AgentInfo");
 			JsonObject AgentInfo = jsonAgentInfo.getAsJsonObject();
-			JsonElement jsonEnvironmentId = AgentInfo.get("EnvironmentId");
-			UUID environmentId = Utils.defaultUuidIfNull(jsonEnvironmentId, UUID.randomUUID());
-			JsonElement jsonEnvironmentTitle = AgentInfo.get("EnvironmentTitle");
-			String environmentTitle = Utils.defaultStringIfNull(jsonEnvironmentTitle);
-			JsonElement jsonEnvironmentConnectionType = AgentInfo.get("ConnectionType");
-			String environmentConnectionType = Utils.defaultStringIfNull(jsonEnvironmentConnectionType, "Not defined");
+			JsonElement jsonAgentId = AgentInfo.get("AgentId");
+			UUID agentId = Utils.defaultUuidIfNull(jsonAgentId, UUID.randomUUID());
+			JsonElement jsonAgentTitle = AgentInfo.get("AgentTitle");
+			String agentTitle = Utils.defaultStringIfNull(jsonAgentTitle);
+			JsonElement jsonAgentConnectionType = AgentInfo.get("ConnectionType");
+			String agentConnectionType = Utils.defaultStringIfNull(jsonAgentConnectionType, "Not defined");
 
 			JsonElement jsonRunId = jsonRunItem.get("AutomationRunId");
 			UUID runId = Utils.defaultUuidIfNull(jsonRunId, UUID.randomUUID());
@@ -632,7 +673,7 @@ public final class PluginHandler {
 				return runItem;
 			} else {
 				Failure keyframes = getRunItemKeyFrames(client, controllerApiHttpAddress, accessKey, runItemId, runItem,
-						scheduleTitle, environmentTitle, listener);
+						scheduleTitle, agentTitle, listener);
 				runItem.failure = keyframes;
 				return runItem;
 			}
@@ -675,7 +716,7 @@ public final class PluginHandler {
 	}
 
 	public Failure getRunItemKeyFrames(AsyncHttpClient client, String controllerApiHttpAddress, String accessKey,
-			UUID runItemId, RunItem runItem, String scheduleTitle, String environmentTitle, final TaskListener listener)
+			UUID runItemId, RunItem runItem, String scheduleTitle, String agentTitle, final TaskListener listener)
 			throws Exception {
 
 		String uri = String.format(Messages.GET_RUN_ITEM_KEYFRAMES_URI, controllerApiHttpAddress, runItemId.toString());
@@ -694,21 +735,29 @@ public final class PluginHandler {
 				StringBuilder fullKeyframes = new StringBuilder("");
 
 				for (JsonElement jsonKeyFrame : jsonKeyframes) {
+					
 					String level = Utils.defaultStringIfNull(jsonKeyFrame.getAsJsonObject().get("Level"), "Trace");
 					if (!level.contentEquals("") && !level.contentEquals("Trace")) {
 						String keyFrameTimeStamp = jsonKeyFrame.getAsJsonObject().get("Timestamp").getAsJsonObject()
 								.get("Value").getAsString();
 						String keyFrameLogMessage = jsonKeyFrame.getAsJsonObject().get("LogMessage").getAsString();
-						String keyFrame = String.format(Messages.CASE_STACKTRACE_FORMAT, keyFrameTimeStamp,
-								keyFrameLogMessage);
+						JsonElement keyFrameBlockTitle = jsonKeyFrame.getAsJsonObject().get("BlockTitle");
+						String keyFrame = "";
+						if (keyFrameBlockTitle != null) {
+							keyFrame = String.format(Messages.CASE_STACKTRACE_FORMAT_BLOCKTITLE, keyFrameTimeStamp,
+									keyFrameBlockTitle.getAsString(), keyFrameLogMessage);
+						} else {
+							keyFrame = String.format(Messages.CASE_STACKTRACE_FORMAT, keyFrameTimeStamp,
+									keyFrameLogMessage);
+						}
 						listener.getLogger().println(keyFrame);
 						fullKeyframes.append(keyFrame);
 						fullKeyframes.append("&#xA;");
 					}
 				}
 
-				fullKeyframes.append("Environment: ").append(environmentTitle).append("&#xA;");
-				listener.getLogger().println("Environment: " + environmentTitle);
+				fullKeyframes.append("AgentTitle: ").append(agentTitle).append("&#xA;");
+				listener.getLogger().println("AgentTitle: " + agentTitle);
 				fullKeyframes.append("Schedule: ").append(scheduleTitle);
 				listener.getLogger().println("Schedule: " + scheduleTitle);
 
