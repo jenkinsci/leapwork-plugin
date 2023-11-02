@@ -19,7 +19,6 @@ import com.Leapwork.Leapwork_plugin.model.LeapworkRun;
 import com.Leapwork.Leapwork_plugin.model.RunCollection;
 import com.Leapwork.Leapwork_plugin.model.RunItem;
 import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
 
 import hudson.AbortException;
 import hudson.EnvVars;
@@ -51,7 +50,6 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	private boolean leapworkWritePassedFlowKeyFrames;
 	private boolean leapworkEnableHttps;
 	private String leapworkScheduleVariables;
-	private static final int TIMEOUT_IN_SECONDS = 180;
 
 	private static PluginHandler pluginHandler = PluginHandler.getInstance();
 
@@ -173,12 +171,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		String scheduleVariablesRequestPart = pluginHandler
 				.getScheduleVariablesRequestPart(getLeapworkScheduleVariables(), listener);
 
-		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder()
-											.setReadTimeout(TIMEOUT_IN_SECONDS * 1000)
-											.setRequestTimeout(TIMEOUT_IN_SECONDS * 1000)
-											.build();
-											
-		try (AsyncHttpClient mainClient = new AsyncHttpClient(config)) {
+		try (AsyncHttpClient mainClient = new AsyncHttpClient()) {
 
 			// Get schedule titles (or/and ids in case of pipeline)
 			LinkedHashMap<UUID, String> schedulesIdTitleHashMap = pluginHandler.getSchedulesIdTitleHashMap(mainClient,
