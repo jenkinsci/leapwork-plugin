@@ -28,6 +28,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.Response;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -122,6 +123,23 @@ public final class PluginHandler {
 			listener.getLogger()
 					.println(String.format(Messages.TIME_DELAY_NUMBER_IS_INVALID, rawTimeDelay, defaultTimeDelay));
 			return defaultTimeDelay;
+		}
+	}
+
+	public int getTimeout(String rawTimeout, TaskListener listener) {
+		int defaultTimeout = 300;
+		try {
+			if (!rawTimeout.isEmpty() || !"".equals(rawTimeout))
+				return Integer.parseInt(rawTimeout);
+			else {
+				listener.getLogger()
+						.println(String.format(Messages.TIMEOUT_NUMBER_IS_INVALID, rawTimeout, defaultTimeout));
+				return defaultTimeout;
+			}
+		} catch (Exception e) {
+			listener.getLogger()
+					.println(String.format(Messages.TIMEOUT_NUMBER_IS_INVALID, rawTimeout, defaultTimeout));
+			return defaultTimeout;
 		}
 	}
 
@@ -388,13 +406,19 @@ public final class PluginHandler {
 	}
 
 	@SuppressFBWarnings(value = "REC_CATCH_EXCEPTION")
-	public boolean stopRun(String controllerApiHttpAddress, UUID runId, String scheduleTitle, String accessKey,
+	public boolean stopRun(String controllerApiHttpAddress, UUID runId, String scheduleTitle, String accessKey, int timeout,
 			final TaskListener listener) {
 		boolean isSuccessfullyStopped = false;
 
 		listener.error(String.format(Messages.STOPPING_RUN, scheduleTitle, runId));
 		String uri = String.format(Messages.STOP_RUN_URI, controllerApiHttpAddress, runId.toString());
-		try (AsyncHttpClient client = new AsyncHttpClient()) {
+
+		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder()
+											.setReadTimeout(timeout * 1000)
+											.setRequestTimeout(timeout * 1000)
+											.build();
+
+		try (AsyncHttpClient client = new AsyncHttpClient(config)) {
 
 			Response response = client.preparePut(uri).setBody("").setHeader("AccessKey", accessKey).execute().get();
 			client.close();

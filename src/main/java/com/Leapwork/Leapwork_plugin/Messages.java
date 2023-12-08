@@ -75,6 +75,7 @@ public class Messages {
 	public static final String NO_DISK_SPACE = "No enough disk space to start schedule";
 	public static final String PORT_NUMBER_IS_INVALID = "Port number is invalid, setting to default %1$d";
 	public static final String TIME_DELAY_NUMBER_IS_INVALID = "Time delay number is invalid: %1$s, setting to default %2$s";
+	public static final String TIMEOUT_NUMBER_IS_INVALID = "Timeout number is invalid: %1$s, setting to default %2$s";
 	public static final String FULL_REPORT_FILE_PATH = "Creating report file by path: %1$s";
 	public static final String SCHEDULE_DISABLED = "Schedule %1$s[%2$s] is disabled";
 	public static final String INVALID_SCHEDULE_VARIABLE = "Failed to parse variable: %1$s";
@@ -90,6 +91,7 @@ public class Messages {
 	public static final String INPUT_SCHEDULE_NAMES_VALUE = "Schedule names: %1$s";
 	public static final String INPUT_SCHEDULE_IDS_VALUE = "Schedule ids: %1$s";
 	public static final String INPUT_DELAY_VALUE = "Delay between status checks: %1$s";
+	public static final String INPUT_TIMEOUT_VALUE = "Leapwork API Request/Response Timeout: %1$s";
 	public static final String INPUT_DONE_VALUE = "Done Status As: %1$s";
 	public static final String INPUT_WRITE_PASSED = "Write keyframes of passed flows: %1$b";
 	public static final String INPUT_VARIABLES = "Passed schedule variables: %1$s";

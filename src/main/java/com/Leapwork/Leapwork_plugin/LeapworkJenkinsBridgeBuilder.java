@@ -44,6 +44,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	private final String leapworkPort;
 	private final Secret leapworkAccessKey;
 	private String leapworkDelay;
+	private String leapworkTimeout;
 	private String leapworkDoneStatusAs;
 	private String leapworkReport;
 	private final String leapworkSchIds;
@@ -51,7 +52,6 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	private boolean leapworkWritePassedFlowKeyFrames;
 	private boolean leapworkEnableHttps;
 	private String leapworkScheduleVariables;
-	private static final int TIMEOUT_IN_SECONDS = 180;
 
 	private static PluginHandler pluginHandler = PluginHandler.getInstance();
 
@@ -59,13 +59,14 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	// "DataBoundConstructor"
 	@DataBoundConstructor
 	public LeapworkJenkinsBridgeBuilder(String leapworkHostname, String leapworkPort, String leapworkAccessKey,
-			String leapworkDelay, String leapworkDoneStatusAs, String leapworkReport, String leapworkSchNames,
+			String leapworkDelay, String leapworkTimeout, String leapworkDoneStatusAs, String leapworkReport, String leapworkSchNames,
 			String leapworkSchIds, boolean leapworkWritePassedFlowKeyFrames, boolean leapworkEnableHttps) {
 
 		this.leapworkHostname = leapworkHostname;
 		this.leapworkPort = leapworkPort;
 		this.leapworkAccessKey = Secret.fromString(leapworkAccessKey);
 		this.leapworkDelay = leapworkDelay;
+		this.leapworkTimeout = leapworkTimeout;
 		this.leapworkDoneStatusAs = leapworkDoneStatusAs;
 		this.leapworkReport = leapworkReport;
 		this.leapworkSchIds = leapworkSchIds;
@@ -87,6 +88,11 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	@DataBoundSetter
 	public void setLeapworkDelay(String leapworkDelay) {
 		this.leapworkDelay = leapworkDelay;
+	}
+
+	@DataBoundSetter
+	public void setLeapworkTimeout(String leapworkTimeout) {
+		this.leapworkTimeout = leapworkTimeout;
 	}
 
 	@DataBoundSetter
@@ -118,6 +124,10 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 
 	public String getLeapworkDelay() {
 		return leapworkDelay;
+	}
+
+	public String getLeapworkTimeout() {
+		return leapworkTimeout;
 	}
 
 	public String getLeapworkSchNames() {
@@ -154,6 +164,8 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 
 		EnvVars env = build.getEnvironment(listener);
 		ArrayList<InvalidSchedule> invalidSchedules = new ArrayList<>();
+		
+		int timeout = pluginHandler.getTimeout(leapworkTimeout, listener);
 
 		String workspacePath = pluginHandler.getWorkSpaceSafe(workspace, env);
 		this.leapworkReport = pluginHandler.getReportFileName(this.getLeapworkReport(),
@@ -174,8 +186,8 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 				.getScheduleVariablesRequestPart(getLeapworkScheduleVariables(), listener);
 		
 		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder()
-											.setReadTimeout(TIMEOUT_IN_SECONDS * 1000)
-											.setRequestTimeout(TIMEOUT_IN_SECONDS * 1000)
+											.setReadTimeout(timeout * 1000)
+											.setRequestTimeout(timeout * 1000)
 											.build();
 
 		try (AsyncHttpClient mainClient = new AsyncHttpClient(config)) {
@@ -206,7 +218,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 				if (runId != null) {
 					resultsMap.put(runId, run);
 					CollectScheduleRunResults(controllerApiHttpAddress, Secret.toString(leapworkAccessKey), runId,
-							schTitle, timeDelay, isDoneStatusAsSuccess, writePassedKeyframes, run, listener);
+							schTitle, timeDelay, timeout, isDoneStatusAsSuccess, writePassedKeyframes, run, listener);
 				} else
 					resultsMap.put(UUID.randomUUID(), run);
 
@@ -288,12 +300,17 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	}
 
 	private static void CollectScheduleRunResults(String controllerApiHttpAddress, String accessKey, UUID runId,
-			String scheduleName, int timeDelay, boolean isDoneStatusAsSuccess, boolean writePassedKeyframes,
+			String scheduleName, int timeDelay, int timeout, boolean isDoneStatusAsSuccess, boolean writePassedKeyframes,
 			LeapworkRun resultRun, final TaskListener listener) throws AbortException, InterruptedException {
 		List<UUID> runItemsId = new ArrayList<>();
 		Object waiter = new Object();
+		
+		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder()
+											.setReadTimeout(timeout * 1000)
+											.setRequestTimeout(timeout * 1000)
+											.build();
 		// get statuses
-		try (AsyncHttpClient client = new AsyncHttpClient()) {
+		try (AsyncHttpClient client = new AsyncHttpClient(config)) {
 			boolean isStillRunning = true;
 
 			do {
@@ -380,7 +397,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 				String interruptedExceptionMessage = String.format(Messages.INTERRUPTED_EXCEPTION, e.getMessage());
 				listener.error(interruptedExceptionMessage);
 				RunItem invalidItem = new RunItem("Aborted run", "Cancelled", 0, e.getMessage(), scheduleName);
-				pluginHandler.stopRun(controllerApiHttpAddress, runId, scheduleName, accessKey, listener);
+				pluginHandler.stopRun(controllerApiHttpAddress, runId, scheduleName, accessKey, timeout, listener);
 				resultRun.incErrors();
 				resultRun.runItems.add(invalidItem);
 			} finally {
@@ -405,6 +422,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		listener.getLogger().println(String.format(Messages.INPUT_SCHEDULE_NAMES_VALUE, getLeapworkSchNames()));
 		listener.getLogger().println(String.format(Messages.INPUT_SCHEDULE_IDS_VALUE, getLeapworkSchIds()));
 		listener.getLogger().println(String.format(Messages.INPUT_DELAY_VALUE, getLeapworkDelay()));
+		listener.getLogger().println(String.format(Messages.INPUT_TIMEOUT_VALUE, getLeapworkTimeout()));
 		listener.getLogger().println(String.format(Messages.INPUT_DONE_VALUE, getLeapworkDoneStatusAs()));
 		listener.getLogger().println(String.format(Messages.INPUT_WRITE_PASSED, isLeapworkWritePassedFlowKeyFrames()));
 		listener.getLogger().println(String.format(Messages.INPUT_VARIABLES, getLeapworkScheduleVariables()));
@@ -435,6 +453,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		}
 
 		public static final String DEFAULT_DELAY = "5";
+		public static final String DEFAULT_TIMEOUT = "300";
 		public static final String DEFAULT_REPORT_NAME = "report.xml";
 		public static final boolean DEFAULT_WRITE_PASSED_FLOW_KEYFRAMES = false;
 		public static final boolean DEFAULT_ENABLE_lEAPWORK_HTTPS = false;
@@ -453,10 +472,28 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 			return FormValidation.ok();
 		}
 
+		public FormValidation doCheckLeapworkTimeout(@QueryParameter("leapworkTimeout") String timeout) {
+			int temp;
+			try {
+				temp = Integer.parseInt(timeout);
+
+				if (temp < 1) {
+					return FormValidation.error("Entered number must be higher than 0");
+				}
+			} catch (NumberFormatException ex) {
+				return FormValidation.error("Invalid number");
+			}
+			return FormValidation.ok();
+		}
+
 		public String getDefaultLeapworkDelay() {
 			return DEFAULT_DELAY;
 		}
 
+		public String getDefaultLeapworkTimeout() {
+			return DEFAULT_TIMEOUT;
+		}
+		
 		public String getDefaultLeapworkReport() {
 			return DEFAULT_REPORT_NAME;
 		}
