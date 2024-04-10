@@ -15,50 +15,77 @@
 		<revision>4.0.10</revision>
 		<changelist>-SNAPSHOT</changelist>
 		<gitHubRepo>jenkinsci/leapwork-plugin</gitHubRepo>
+		<changelist>-SNAPSHOT</changelist>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have 
 			this version or newer to run. -->
 		<jenkins.version>2.440.1</jenkins.version>
+		<java.level>11</java.level>
 		<gitHubRepo>jenkinsci/leapwork-plugin</gitHubRepo>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
 	<name>Leapwork</name>
 	<url>https://github.com/${gitHubRepo}</url>
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<!-- Pick up common dependencies for the selected LTS line: https://github.com/jenkinsci/bom#usage -->
+				<groupId>io.jenkins.tools.bom</groupId>
+				<artifactId>bom-2.440.x</artifactId>
+				<version>2815.vf5d6f093b_23e</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+			<dependency>
+				<groupId>io.jenkins.plugins</groupId>
+				<artifactId>jakarta-activation-api</artifactId>
+				<version>2.0.1-3</version>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
-	<dependencies>		
+	<dependencies>
+		<dependency>
+			<groupId>com.github.spotbugs</groupId>
+			<artifactId>spotbugs-annotations</artifactId>
+			<version>4.8.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.kohsuke</groupId>
+			<artifactId>access-modifier-annotation</artifactId>
+			<version>1.33</version>
+		</dependency>
+		<dependency>
+			<!-- Pick up common dependencies for the selected LTS line: https://github.com/jenkinsci/bom#usage -->
+			<groupId>io.jenkins.tools.bom</groupId>
+			<artifactId>bom-2.440.x</artifactId>
+			<version>2815.vf5d6f093b_23e</version>
+			<scope>import</scope>
+			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>io.jenkins.plugins</groupId>
+			<artifactId>jakarta-activation-api</artifactId>
+			<version>2.0.1-3</version>
+		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins</groupId>
 			<artifactId>structs</artifactId>
-			<version>337.v1b_04ea_4df7c8</version>			
-		</dependency>
-		<dependency>
-    		<groupId>com.google.code.gson</groupId>
-    		<artifactId>gson</artifactId>
-			<version>2.10.1</version>
-		</dependency>
-		<dependency>
-    		<groupId>io.jenkins.plugins</groupId>
-    		<artifactId>caffeine-api</artifactId>
-    		<version>3.1.8-133.v17b_1ff2e0599</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins.workflow</groupId>
 			<artifactId>workflow-cps</artifactId>
-			<version>3883.vb_3ff2a_e3eea_f</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins.workflow</groupId>
 			<artifactId>workflow-job</artifactId>
-			<version>1400.v7fd111b_ec82f</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins.workflow</groupId>
 			<artifactId>workflow-basic-steps</artifactId>
-			<version>1049.v257a_e6b_30fb_d</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -77,6 +104,12 @@
 			<version>1.7.32</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.8.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.jenkins-ci.plugins</groupId>
 			<artifactId>anything-goes-formatter</artifactId>
@@ -99,13 +132,15 @@
 			<artifactId>annotations</artifactId>
 			<version>3.0.1u2</version>
 		</dependency>
+
+
 		<dependency>
 			<groupId>org.jenkins-ci.plugins.workflow</groupId>
 			<artifactId>workflow-durable-task-step</artifactId>
-			<version>1331.vc8c2fed35334</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
 	<licenses>
 		<license>
 			<name>MIT License</name>
@@ -115,6 +150,7 @@
 	<!-- If you want this to appear on the plugin site page: -->
 	<developers>
 		<developer>
+
 			<name>Leapwork DevOps</name>
 			<email>prioritysupport@leapwork.com</email>
 		</developer>
@@ -148,6 +184,16 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<!-- Update to the latest version -->
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+				</configuration>
+			</plugin>
 	<plugin>
     <groupId>org.jenkins-ci.tools</groupId>
     <artifactId>maven-hpi-plugin</artifactId>
@@ -256,7 +302,7 @@
             </configuration>
         </execution>
     </executions>
-</plugin>			
+</plugin>
 		</plugins>
 	</build>
 </project>
