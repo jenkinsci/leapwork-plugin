@@ -30,17 +30,9 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<!-- Pick up common dependencies for the selected LTS line: https://github.com/jenkinsci/bom#usage -->
-				<groupId>io.jenkins.tools.bom</groupId>
-				<artifactId>bom-2.440.x</artifactId>
-				<version>2815.vf5d6f093b_23e</version>
-				<scope>import</scope>
-				<type>pom</type>
-			</dependency>
-			<dependency>
 				<groupId>io.jenkins.plugins</groupId>
 				<artifactId>jakarta-activation-api</artifactId>
-				<version>2.0.1-3</version>
+				<version>2.1.3-1</version>
 			</dependency>
 
 		</dependencies>
@@ -61,31 +53,35 @@
 			<groupId>io.jenkins.tools.bom</groupId>
 			<artifactId>bom-2.440.x</artifactId>
 			<version>2815.vf5d6f093b_23e</version>
-			<scope>import</scope>
+			<scope>test</scope>
 			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>io.jenkins.plugins</groupId>
-			<artifactId>jakarta-activation-api</artifactId>
-			<version>2.0.1-3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins</groupId>
 			<artifactId>structs</artifactId>
+			<version>337.v1b_04ea_4df7c8</version>			
+		</dependency>
+		<dependency>
+    		<groupId>io.jenkins.plugins</groupId>
+    		<artifactId>caffeine-api</artifactId>
+    		<version>3.1.8-133.v17b_1ff2e0599</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins.workflow</groupId>
 			<artifactId>workflow-cps</artifactId>
+			<version>3883.vb_3ff2a_e3eea_f</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins.workflow</groupId>
 			<artifactId>workflow-job</artifactId>
+			<version>1400.v7fd111b_ec82f</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins.workflow</groupId>
 			<artifactId>workflow-basic-steps</artifactId>
+			<version>1049.v257a_e6b_30fb_d</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -132,15 +128,13 @@
 			<artifactId>annotations</artifactId>
 			<version>3.0.1u2</version>
 		</dependency>
-
-
 		<dependency>
 			<groupId>org.jenkins-ci.plugins.workflow</groupId>
 			<artifactId>workflow-durable-task-step</artifactId>
+			<version>1331.vc8c2fed35334</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 	<licenses>
 		<license>
 			<name>MIT License</name>
@@ -150,7 +144,6 @@
 	<!-- If you want this to appear on the plugin site page: -->
 	<developers>
 		<developer>
-
 			<name>Leapwork DevOps</name>
 			<email>prioritysupport@leapwork.com</email>
 		</developer>
@@ -184,6 +177,13 @@
 
 	<build>
 		<plugins>
+		<plugin>
+    		<groupId>org.jenkins-ci.tools</groupId>
+    		<artifactId>maven-hpi-plugin</artifactId>
+    		<configuration>
+        		<minimumJavaVersion>11</minimumJavaVersion>
+    		</configuration>
+  		</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
