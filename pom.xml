@@ -158,4 +158,20 @@
 			<url>https://repo.jenkins-ci.org/public/</url>
 		</pluginRepository>
 	</pluginRepositories>
+	<build>
+    <plugins>
+        <plugin>
+            <groupId>org.jenkins-ci.tools</groupId>
+            <artifactId>maven-hpi-plugin</artifactId>
+            <version>3.37</version> <!-- Use the appropriate version here -->
+            <extensions>true</extensions>
+            <configuration>
+                <!-- Configure your plugin here -->
+            </configuration>
+        </plugin>
+        <!-- Other plugins in your build configuration -->
+    </plugins>
+	</build>
+
+
 </project>
