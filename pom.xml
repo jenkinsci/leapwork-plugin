@@ -17,7 +17,7 @@
 		<gitHubRepo>jenkinsci/leapwork-plugin</gitHubRepo>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have 
 			this version or newer to run. -->
-		<jenkins.version>2.277.1</jenkins.version>
+		<jenkins.version>2.440.1</jenkins.version>
 		<gitHubRepo>jenkinsci/leapwork-plugin</gitHubRepo>
 	</properties>
 	<name>Leapwork</name>
