@@ -163,7 +163,7 @@
         <plugin>
             <groupId>org.jenkins-ci.tools</groupId>
             <artifactId>maven-hpi-plugin</artifactId>
-            <version>3.37</version> <!-- Use the appropriate version here -->
+            <version>3.36</version> <!-- Use the appropriate version here -->
             <extensions>true</extensions>
             <configuration>
                 <!-- Configure your plugin here -->
