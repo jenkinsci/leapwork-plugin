@@ -12,7 +12,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public final class RunCollection {
 
-	public int totalTests = 0;
+	private int totalTests = 0;
 
 	private int passedTests = 0;
 
