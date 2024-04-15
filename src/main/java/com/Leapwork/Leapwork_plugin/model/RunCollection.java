@@ -11,7 +11,6 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "testsuites")
 @XmlAccessorType(XmlAccessType.NONE)
 public final class RunCollection {
-
 	
 	private int totalTests = 0;
 
