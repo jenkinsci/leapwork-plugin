@@ -1,38 +1,38 @@
 function GetSch() {
-    var closestElement = (jQuery)(event.target).closest('.repeated-chunk');
+    var closestElement = (jQuery3)(event).closest('.repeated-chunk');
     var closestEle;
-    if (closestElement != null) {
-        closestEle = closestElement[0].firstElementChild;
+    if (closestElement.length > 0) {
+        closestEle = closestElement[0].firstElementChild || closestElement[0];
     } else {
         closestEle = document;
     }
 
-    const leapworkHostname = (jQuery)(closestEle).find("#leapworkHostname").first().val();
-    const leapworkPort = (jQuery)(closestEle).find("#leapworkPort").first().val();
+    const leapworkHostname = (jQuery3)(closestEle).find("#leapworkHostname").first().val();
+    const leapworkPort = (jQuery3)(closestEle).find("#leapworkPort").first().val();
 
     if (!leapworkHostname || !leapworkPort) {
         alert('"hostname or/and field is empty! Cannot connect to controller!"');
     } else {
         let myAddress = "";
-        if ((jQuery)(closestEle).find("#chkEnableHttps").first().prop('checked')) {
+        if ((jQuery3)(closestEle).find("#chkEnableHttps").first().prop('checked')) {
             myAddress = "https://" + leapworkHostname + ":" + leapworkPort;
         } else {
             myAddress = "http://" + leapworkHostname + ":" + leapworkPort;
         }
         const address = myAddress;
-        const accessKey = (jQuery)(closestEle).find("#leapworkAccessKey").first().val();
+        const accessKey = (jQuery3)(closestEle).find("#leapworkAccessKey").first().val();
 
-        if ((jQuery)(closestEle).find('#LeapworkContainer').first().html() == "") {
-            (jQuery).ajax({
+        if ((jQuery3)(closestEle).find('#LeapworkContainer').first().html() == "") {
+            (jQuery3).ajax({
                 url: address + "/api/v4/schedules/hierarchy",
                 headers: { 'AccessKey': accessKey },
                 type: 'GET',
                 dataType: "json",
                 success: function (json) {
-                    const container = (jQuery)(closestEle).find('#LeapworkContainer').first();
+                    const container = (jQuery3)(closestEle).find('#LeapworkContainer').first();
 
-                    (jQuery)(document).click(function (event) {
-                        if ((jQuery)(event.target).closest('#LeapworkContainer').length == 0 && (jQuery)(event.target).attr('id') != 'mainButton') {
+                    (jQuery3)(document).click(function (event) {
+                        if ((jQuery3)(event.target).closest('#LeapworkContainer').length == 0 && (jQuery3)(event.target).attr('id') != 'mainButton') {
                             container.find("input:checkbox").remove();
                             container.find("li").remove();
                             container.find("ul").remove();
@@ -57,7 +57,8 @@ function GetSch() {
                                 if (!document.getElementById(`${ScheduleHierarchy.Parent[0].Id}`))
                                     createFolders(ScheduleHierarchy.Parent, scheduleInfo, root);
                                 let myParent = document.getElementById(`${ScheduleHierarchy.Parent[0].Id}`);
-                                myParent.innerHTML += `<div id="${ScheduleHierarchy.Id}" class="Folder" style="color: darkblue; padding-left:20px;">${title}</div>`;
+                                var schHierarchy = `<div id="${ScheduleHierarchy.Id}" class="Folder" style="color: darkblue; padding-left:20px;">${title}</div>`;
+                                jQuery3(myParent).append(jQuery3(schHierarchy)); 
                             } else if (ScheduleHierarchy["Type"] == "RunList" && ScheduleHierarchy.Parent.length == 0) {
                                 if (!document.getElementById(`${ScheduleHierarchy.Id}`))
                                     root.append(`<div id="${ScheduleHierarchy.Id}" class="RunList" style="color: black; padding-left:20px;">${title}</div>`);
@@ -65,7 +66,8 @@ function GetSch() {
                                 if (!document.getElementById(`${ScheduleHierarchy.Parent[0].Id}`))
                                     createFolders(ScheduleHierarchy.Parent, scheduleInfo, root);
                                 let myParent = document.getElementById(`${ScheduleHierarchy.Parent[0].Id}`);
-                                myParent.innerHTML += `<div id="${ScheduleHierarchy.Id}" class="RunList" style="color: black; padding-left:20px;">${title}</div>`;
+                                var schHierarchy = `<div id="${ScheduleHierarchy.Id}" class="RunList" style="color: black; padding-left:20px;">${title}</div>`;
+                                jQuery3(myParent).append(jQuery3(schHierarchy)); 
                             } else if (ScheduleHierarchy["Type"] == "ScheduleInfo") {
                                 var scheduleId = ScheduleHierarchy.Id;
                                 if (!document.getElementById(`${ScheduleHierarchy.Parent[0].Id}`))
@@ -74,12 +76,13 @@ function GetSch() {
                                 for (schedule of scheduleInfo) {
                                     if (schedule.Id == scheduleId) {
                                         if (schedule.IsEnabled) {
-                                            myParent.innerHTML += `<div style="color: green; padding-left:30px;">
+                                            var schValue = `<div style="color: green; padding-left:30px;">
                                        <input type="checkBox" id="${ScheduleHierarchy.Id}" class="ScheduleInfo" name="${title}">${title}</div>`;
+                                       jQuery3(myParent).append(jQuery3(schValue));
                                         } else {
                                             var element = `<div style="color:grey; padding-left:30px;">
                                         <input type="checkBox" disabled="true" id="${ScheduleHierarchy.Id}" class="ScheduleInfoDisabled" name="${title}"><s>${title}</s></div>`;
-                                            myParent.innerHTML += element
+                                        jQuery3(myParent).append(jQuery3(element));
                                         }
                                     }
                                 }
@@ -102,27 +105,27 @@ function GetSch() {
                     });
                     container.find(".ul-dropfree").find("ul").slideUp(400).parents("li").children("div.drop").css({ 'background-position': "0 0" });
 
-                    let TestNames = (jQuery)(closestEle).find("#schNames").first();
-                    let TestIds = (jQuery)(closestEle).find("#schIds").first();
-                    let boxes = (jQuery)(closestEle).find("#LeapworkContainer input:checkbox");
+                    let TestNames = (jQuery3)(closestEle).find("#schNames").first();
+                    let TestIds = (jQuery3)(closestEle).find("#schIds").first();
+                    let boxes = (jQuery3)(closestEle).find("#LeapworkContainer input:checkbox");
                     let existingTests = TestIds.val().split(/\r\n|\n|\s+,\s+|,\s+|\s+,|,/);
                     if (TestNames.val() !== null && TestIds.val() !== null) {
                         for (let i = 0; i < existingTests.length; i++) {
                             for (j = 0; j < boxes.length; j++) {
-                                if (existingTests[i] == (jQuery)(boxes[j]).attr('id')) {
+                                if (existingTests[i] == (jQuery3)(boxes[j]).attr('id')) {
                                     if (!boxes[j].disabled)
-                                        (jQuery)(boxes[j]).prop('checked', 'checked');
+                                        (jQuery3)(boxes[j]).prop('checked', 'checked');
                                 }
                             }
                         }
                     }
-                    (jQuery)(closestEle).find("#LeapworkContainer input:checkbox").on("change", function () {
+                    (jQuery3)(closestEle).find("#LeapworkContainer input:checkbox").on("change", function () {
                         let NamesArray = [];
                         let IdsArray = [];
-                        (jQuery)(boxes).each(function () {
-                            if ((jQuery)(this).prop('checked')) {
-                                NamesArray.push((jQuery)(this).attr('name'));
-                                IdsArray.push((jQuery)(this).attr('id'));
+                        (jQuery3)(boxes).each(function () {
+                            if ((jQuery3)(this).prop('checked')) {
+                                NamesArray.push((jQuery3)(this).attr('name'));
+                                IdsArray.push((jQuery3)(this).attr('id'));
                             }
                         });
                         TestNames.val(NamesArray.join("\n"));

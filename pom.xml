@@ -12,13 +12,12 @@
 	<version>${revision}${changelist}</version>
 	<packaging>hpi</packaging>
 	<properties>
-		<revision>4.0.11</revision>
+		<revision>4.0.12</revision>
 		<changelist>-SNAPSHOT</changelist>
 		<gitHubRepo>jenkinsci/leapwork-plugin</gitHubRepo>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have 
 			this version or newer to run. -->
 		<jenkins.version>2.440.1</jenkins.version>
-		<gitHubRepo>jenkinsci/leapwork-plugin</gitHubRepo>
 	</properties>
 	<name>Leapwork</name>
 	<url>https://github.com/${gitHubRepo}</url>
@@ -61,6 +60,21 @@
 			<artifactId>slf4j-nop</artifactId>
 			<version>1.7.32</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jenkins.plugins</groupId>
+			<artifactId>jquery3-api</artifactId>
+			<version>3.7.1-2</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jenkins.plugins</groupId>
+			<artifactId>commons-lang3-api</artifactId>
+			<version>3.13.0-62.v7d18e55f51e2</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jenkins.plugins</groupId>
+			<artifactId>commons-text-api</artifactId>
+			<version>1.11.0-95.v22a_d30ee5d36</version>
 		</dependency>
 	</dependencies>
 
