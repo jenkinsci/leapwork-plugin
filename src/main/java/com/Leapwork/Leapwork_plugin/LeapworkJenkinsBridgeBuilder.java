@@ -52,6 +52,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	private boolean leapworkWritePassedFlowKeyFrames;
 	private boolean leapworkEnableHttps;
 	private String leapworkScheduleVariables;
+	private static final int TIMEOUT_IN_SECONDS = 180;
 
 	private static PluginHandler pluginHandler = PluginHandler.getInstance();
 
