@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -23,6 +24,8 @@ import com.Leapwork.Leapwork_plugin.model.InvalidSchedule;
 import com.Leapwork.Leapwork_plugin.model.LeapworkRun;
 import com.Leapwork.Leapwork_plugin.model.RunCollection;
 import com.Leapwork.Leapwork_plugin.model.RunItem;
+import com.Leapwork.Leapwork_plugin.model.LeapworkExecution;
+import com.Leapwork.Leapwork_plugin.model.ZephyrScaleResult;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -39,6 +42,7 @@ import hudson.remoting.VirtualChannel;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class PluginHandler {
 
@@ -537,6 +541,64 @@ public final class PluginHandler {
 		}
 	}
 
+	public void createZephyrScaleJSONReport(FilePath workspace, String JUnitReportFile, final TaskListener listener,
+			RunCollection buildResult) throws Exception {
+		try {	
+			FilePath reportFile;
+			if (workspace.isRemote()) {
+				String fileName = "/" + JUnitReportFile;
+				
+				VirtualChannel channel = workspace.getChannel();
+				URI uri = workspace.toURI();
+				String workspacePathUrl = Paths.get(Paths.get(uri).toString(), JUnitReportFile).toString();
+				reportFile = new FilePath(channel, workspacePathUrl);
+				listener.getLogger()
+						.println(String.format(Messages.FULL_REPORT_FILE_PATH, reportFile.toURI().getPath()));
+			} else {
+				File file = new File(workspace.toURI().getPath(), JUnitReportFile);
+				listener.getLogger().println(String.format(Messages.FULL_REPORT_FILE_PATH, file.getCanonicalPath()));
+				if (!file.exists()) {
+					try {
+						file.createNewFile();
+					} catch (Exception e) {
+						throw e;
+					}
+				}
+				reportFile = new FilePath(file);
+			}
+			List<LeapworkExecution> executions = new ArrayList<>();
+			for (LeapworkRun leapworkRun : buildResult.leapworkRuns) {
+				for (RunItem runItem : leapworkRun.runItems) {
+					LeapworkExecution execution = new LeapworkExecution(
+													leapworkRun.getScheduleTitle() + "." + runItem.getCaseName(),
+													runItem.getCaseStatus()
+												);
+					executions.add(execution);
+				}
+			}
+			ZephyrScaleResult zephyrScaleResult = new ZephyrScaleResult(1, executions);
+			ObjectMapper objectMapper = new ObjectMapper();
+			String jsonString = objectMapper.writeValueAsString(zephyrScaleResult);
+			listener.getLogger().println(jsonString);
+			try (OutputStream outputStream = reportFile.write()) {
+                outputStream.write(jsonString.getBytes());
+            }
+			listener.getLogger().println("report is generated");
+		} catch (FileNotFoundException e) {
+			listener.error(Messages.REPORT_FILE_NOT_FOUND);
+			listener.error(e.getMessage());
+			throw new Exception(e);
+		} catch (IOException e) {
+			listener.error(Messages.REPORT_FILE_CREATION_FAILURE);
+			listener.error(e.getMessage());
+			throw new Exception(e);
+		}
+		catch (Exception e) {
+			listener.error(e.getMessage());
+			throw new Exception(e);
+		} 
+	}
+
 	public String getRunStatus(AsyncHttpClient client, String controllerApiHttpAddress, String accessKey, UUID runId)
 			throws Exception {
 
@@ -846,13 +908,26 @@ public final class PluginHandler {
 		}
 	}
 
-	public String getReportFileName(String rawReportName, String defaultReportName) {
-		String reportName = Utils.isBlank(rawReportName) ? defaultReportName : rawReportName;
+	public String getReportFileName(String rawReportName, String rawReportExtension, String defaultXmlReportName, String defaultJsonReportName) {
+		if(Utils.isBlank(rawReportName))
+			return rawReportExtension.equalsIgnoreCase("json") ? defaultJsonReportName : defaultXmlReportName;
+		int reportFileExtensionIndex = rawReportName.lastIndexOf('.');
+		if (reportFileExtensionIndex == -1)
+			return rawReportName + "." + rawReportExtension;
 
-		if (reportName.contains(".xml") == false) {
-			reportName = reportName.trim().concat(".xml");
+		String reportFileExtension = rawReportName.substring(reportFileExtensionIndex + 1);
+		String baseFileName = rawReportName.substring(0, reportFileExtensionIndex);
+		if(reportFileExtension.equalsIgnoreCase("json") && rawReportExtension.equalsIgnoreCase("xml")){
+			return baseFileName + ".xml";
 		}
-
-		return reportName;
+		else if(reportFileExtension.equalsIgnoreCase("xml") && rawReportExtension.equalsIgnoreCase("json")){
+			return baseFileName + ".json";
+		}
+		else if(reportFileExtension.equalsIgnoreCase(rawReportExtension)){
+			return rawReportName;
+		}
+		else{
+			return rawReportName + "." + rawReportExtension;
+		} 
 	}
 }

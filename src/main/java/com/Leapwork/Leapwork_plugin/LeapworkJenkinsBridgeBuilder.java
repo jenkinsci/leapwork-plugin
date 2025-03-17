@@ -46,6 +46,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	private String leapworkDelay;
 	private String leapworkTimeout;
 	private String leapworkDoneStatusAs;
+	private String leapworkReportExtension;
 	private String leapworkReport;
 	private final String leapworkSchIds;
 	private final String leapworkSchNames;
@@ -60,7 +61,7 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 	// "DataBoundConstructor"
 	@DataBoundConstructor
 	public LeapworkJenkinsBridgeBuilder(String leapworkHostname, String leapworkPort, String leapworkAccessKey,
-			String leapworkDelay, String leapworkTimeout, String leapworkDoneStatusAs, String leapworkReport, String leapworkSchNames,
+			String leapworkDelay, String leapworkTimeout, String leapworkDoneStatusAs, String leapworkReportExtension, String leapworkReport, String leapworkSchNames,
 			String leapworkSchIds, boolean leapworkWritePassedFlowKeyFrames, boolean leapworkEnableHttps) {
 
 		this.leapworkHostname = leapworkHostname;
@@ -69,11 +70,17 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		this.leapworkDelay = leapworkDelay;
 		this.leapworkTimeout = leapworkTimeout;
 		this.leapworkDoneStatusAs = leapworkDoneStatusAs;
+		this.leapworkReportExtension = leapworkReportExtension;
 		this.leapworkReport = leapworkReport;
 		this.leapworkSchIds = leapworkSchIds;
 		this.leapworkSchNames = leapworkSchNames;
 		this.leapworkEnableHttps = leapworkEnableHttps;
 		this.leapworkWritePassedFlowKeyFrames = leapworkWritePassedFlowKeyFrames;
+	}
+
+	@DataBoundSetter
+	public void setLeapworkReportExtension(String reportExtension) {
+		this.leapworkReportExtension = reportExtension;
 	}
 
 	@DataBoundSetter
@@ -143,6 +150,10 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		return leapworkDoneStatusAs;
 	}
 
+	public String getLeapworkReportExtension() {
+		return leapworkReportExtension;
+	}
+
 	public String getLeapworkReport() {
 		return leapworkReport;
 	}
@@ -169,8 +180,8 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 		int timeout = pluginHandler.getTimeout(leapworkTimeout, listener);
 
 		String workspacePath = pluginHandler.getWorkSpaceSafe(workspace, env);
-		this.leapworkReport = pluginHandler.getReportFileName(this.getLeapworkReport(),
-				DescriptorImpl.DEFAULT_REPORT_NAME);
+		String leapworkReportWithExtension = pluginHandler.getReportFileName(this.getLeapworkReport(), this.getLeapworkReportExtension(),
+				DescriptorImpl.DEFAULT_XML_REPORT_NAME, DescriptorImpl.DEFAULT_JSON_REPORT_NAME);
 		printPluginInputs(listener, workspacePath);
 
 		int timeDelay = pluginHandler.getTimeDelay(leapworkDelay, listener);
@@ -270,8 +281,13 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 			listener.getLogger().println(String.format(Messages.TOTAL_CASES_PASSED, buildResult.getPassedTests()));
 			listener.getLogger().println(String.format(Messages.TOTAL_CASES_FAILED, buildResult.getFailedTests()));
 			listener.getLogger().println(String.format(Messages.TOTAL_CASES_ERROR, buildResult.getErrors()));
-
-			pluginHandler.createJUnitReport(workspace, leapworkReport, listener, buildResult);
+			
+			if(leapworkReportExtension.equalsIgnoreCase("json")){
+				pluginHandler.createZephyrScaleJSONReport(workspace, leapworkReportWithExtension, listener, buildResult);
+			}
+			else{
+				pluginHandler.createJUnitReport(workspace, leapworkReportWithExtension, listener, buildResult);
+			}
 
 			if (buildResult.getErrors() > 0 || buildResult.getFailedTests() > 0 || invalidSchedules.size() > 0) {
 				if (buildResult.getErrors() > 0)
@@ -455,7 +471,8 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 
 		public static final String DEFAULT_DELAY = "5";
 		public static final String DEFAULT_TIMEOUT = "300";
-		public static final String DEFAULT_REPORT_NAME = "report.xml";
+		public static final String DEFAULT_XML_REPORT_NAME = "report.xml";
+		public static final String DEFAULT_JSON_REPORT_NAME = "zephyrscale_result.json";
 		public static final boolean DEFAULT_WRITE_PASSED_FLOW_KEYFRAMES = false;
 		public static final boolean DEFAULT_ENABLE_lEAPWORK_HTTPS = false;
 
@@ -495,8 +512,12 @@ public class LeapworkJenkinsBridgeBuilder extends Builder implements SimpleBuild
 			return DEFAULT_TIMEOUT;
 		}
 		
-		public String getDefaultLeapworkReport() {
-			return DEFAULT_REPORT_NAME;
+		public String getDefaultLeapworkXmlReport() {
+			return DEFAULT_XML_REPORT_NAME;
+		}
+
+		public String getDefaultLeapworkJsonReport() {
+			return DEFAULT_JSON_REPORT_NAME;
 		}
 
 		public boolean getDefaultLeapworkWritePassedFlowKeyFrames() {

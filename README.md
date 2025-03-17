@@ -1,4 +1,4 @@
-step([$class: 'LeapworkJenkinsBridgeBuilder', leapworkAccessKey: <object of type hudson.util.Secret>, leapworkDelay: '5', leapworkDoneStatusAs: 'Success', leapworkEnableHttps: false, leapworkHostname: 'localhost', leapworkPort: '9001', leapworkReport: 'report.xml', leapworkSchIds: 'd8d06666-c08a-4e32-b8ec-c4c54bf62042', leapworkSchNames: 'NF2R2S1', leapworkScheduleVariables: '', leapworkWritePassedFlowKeyFrames: false])# Leapwork Integration
+step([$class: 'LeapworkJenkinsBridgeBuilder', leapworkAccessKey: <object of type hudson.util.Secret>, leapworkDelay: '5', leapworkDoneStatusAs: 'Success', leapworkEnableHttps: false, leapworkHostname: 'localhost', leapworkPort: '9001', leapworkReportExtension: 'xml', leapworkReport: 'report.xml', leapworkSchIds: 'd8d06666-c08a-4e32-b8ec-c4c54bf62042', leapworkSchNames: 'NF2R2S1', leapworkScheduleVariables: '', leapworkWritePassedFlowKeyFrames: false])# Leapwork Integration
 This is Leapwork plugin for Jenkins (version 2.277.1 or later)
 
 # More Details
@@ -40,6 +40,7 @@ steps{
 	leapworkDoneStatusAs: 'Success',
 	leapworkHostname: 'localhost',
 	leapworkPort: '9001',
+  leapworkReportExtension: 'xml'
 	leapworkReport: 'report.xml',
 	leapworkSchIds: '',//'9c3fa950-d1e8-4e12-bf17-ebc945defad5\ndb5c3a25-8eec-434c-8526-c1b2ef9c56f2',   // splitters: "\n" "," ", "
     leapworkSchNames: 'Problem schedule, Open Applications,    sch, sch 2,sch 3,sch 4      ,        sch 5',

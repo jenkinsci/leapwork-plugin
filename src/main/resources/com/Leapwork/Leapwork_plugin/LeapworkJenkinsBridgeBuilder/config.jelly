@@ -25,9 +25,12 @@
      <f:entry title="Access Key" field="leapworkAccessKey">
             <f:textbox id="leapworkAccessKey" name="leapworkAccessKey"/>
      </f:entry>
-
+    <f:entry title="Report file extension:" field="leapworkReportExtension">
+      <f:radioBlock checked="${instance.leapworkReportExtension == 'xml' || instance.leapworkReportExtension == null}" name="leapworkReportExtension" title="XML" value="xml" inline="true"/>
+      <f:radioBlock checked="${instance.leapworkReportExtension == 'json'}" name="leapworkReportExtension" title="JSON" value="json" inline="true"/>
+    </f:entry>
     <f:entry title="Report file name:" field="leapworkReport">
-    <f:textbox name="leapworkReport" default="${descriptor.DEFAULT_REPORTNAME}"/>
+      <f:textbox name="leapworkReport" default="${descriptor.DEFAULT_REPORTNAME}"/>
     </f:entry>
     <f:entry  field="leapworkSchIds" >
         <f:textarea  id="schIds" name="leapworkSchIds" readonly="true" />
