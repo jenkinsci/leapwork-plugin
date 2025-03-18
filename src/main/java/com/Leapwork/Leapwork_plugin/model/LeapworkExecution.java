@@ -1,7 +1,7 @@
 package com.Leapwork.Leapwork_plugin.model;
 public final class LeapworkExecution {
-	public String source;
-    public String result;
+	private String source;
+    private String result;
     
     public LeapworkExecution() {}
     public LeapworkExecution(String source, String result) {

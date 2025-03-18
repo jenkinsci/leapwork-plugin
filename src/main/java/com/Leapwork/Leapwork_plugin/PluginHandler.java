@@ -10,6 +10,7 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -581,7 +582,7 @@ public final class PluginHandler {
 			String jsonString = objectMapper.writeValueAsString(zephyrScaleResult);
 			listener.getLogger().println(jsonString);
 			try (OutputStream outputStream = reportFile.write()) {
-                outputStream.write(jsonString.getBytes());
+                outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
             }
 			listener.getLogger().println("report is generated");
 		} catch (FileNotFoundException e) {

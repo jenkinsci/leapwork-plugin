@@ -1,8 +1,8 @@
 package com.Leapwork.Leapwork_plugin.model;
 import java.util.List;
 public final class ZephyrScaleResult {
-	public int version;
-    public List<LeapworkExecution> executions;
+	private int version;
+    private List<LeapworkExecution> executions;
     
     public ZephyrScaleResult() {}
     public ZephyrScaleResult(int version, List<LeapworkExecution> executions) {
