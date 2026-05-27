@@ -13,18 +13,19 @@ function GetSch() {
     if (!leapworkHostname || !leapworkPort) {
         alert('"hostname or/and field is empty! Cannot connect to controller!"');
     } else {
-        let myAddress = "";
-        if ((jQuery3)(closestEle).find("#chkEnableHttps").first().prop('checked')) {
-            myAddress = "https://" + leapworkHostname + ":" + leapworkPort;
-        } else {
-            myAddress = "http://" + leapworkHostname + ":" + leapworkPort;
+        const enableHttps = (jQuery3)(closestEle).find("#chkEnableHttps").first().prop('checked');
+        let address = "";
+        try {
+            address = getControllerApiAddress(leapworkHostname, leapworkPort, enableHttps);
+        } catch (error) {
+            alert(error.message);
+            return;
         }
-        const address = myAddress;
         const accessKey = (jQuery3)(closestEle).find("#leapworkAccessKey").first().val();
 
         if ((jQuery3)(closestEle).find('#LeapworkContainer').first().html() == "") {
             (jQuery3).ajax({
-                url: address + "/api/v4/schedules/hierarchy",
+                url: buildControllerApiUrl(address, "api/v4/schedules/hierarchy"),
                 headers: { 'AccessKey': accessKey },
                 type: 'GET',
                 dataType: "json",
@@ -160,4 +161,48 @@ function GetSch() {
             GetSch();
         }
     }
+}
+
+function normalizeUrlQuerySeparators(input) {
+    if (!input || !input.trim()) {
+        return input;
+    }
+
+    const firstQuestionMarkIndex = input.indexOf("?");
+    if (firstQuestionMarkIndex < 0) {
+        return input;
+    }
+
+    const pathPart = input.substring(0, firstQuestionMarkIndex + 1);
+    const queryPart = input.substring(firstQuestionMarkIndex + 1).replace(/\?/g, "&");
+    return pathPart + queryPart;
+}
+
+function getControllerApiAddress(hostnameOrUrl, rawPort, enableHttps) {
+    const trimmedInput = normalizeUrlQuerySeparators((hostnameOrUrl || "").trim());
+    const scheme = enableHttps ? "https" : "http";
+    const candidate = trimmedInput.startsWith("http://") || trimmedInput.startsWith("https://")
+        ? trimmedInput
+        : (trimmedInput.includes("/") || trimmedInput.includes("?")
+            ? `${scheme}://${trimmedInput}`
+            : `${scheme}://${trimmedInput}:${rawPort}`);
+    const url = new URL(candidate);
+
+    if (!url.port) {
+        url.port = rawPort;
+    }
+
+    if (!url.pathname) {
+        url.pathname = "/";
+    }
+
+    return url.toString();
+}
+
+function buildControllerApiUrl(controllerApiHttpAddress, relativePath) {
+    const url = new URL(controllerApiHttpAddress);
+    const normalizedBasePath = (url.pathname || "/").replace(/\/+$/, "");
+    const normalizedRelativePath = (relativePath || "").replace(/^\/+/, "");
+    url.pathname = `${normalizedBasePath}/${normalizedRelativePath}`;
+    return url.toString();
 }

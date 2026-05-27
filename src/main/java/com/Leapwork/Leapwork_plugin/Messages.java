@@ -24,14 +24,14 @@ public class Messages {
 	public static final String CASE_STACKTRACE_FORMAT = "%1$s - %2$s";
 	public static final String  CASE_STACKTRACE_FORMAT_BLOCKTITLE = "%1$s - %2$s - %3$s";
 
-	public static final String GET_ALL_AVAILABLE_SCHEDULES_URI = "%1$s/api/v4/schedules";
-	public static final String RUN_SCHEDULE_URI = "%1$s/api/v4/schedules/%2$s/runNow%3$s";
-	public static final String STOP_RUN_URI = "%1$s/api/v4/run/%2$s/stop";
-	public static final String STOP_SCHEDULE_URI = "%1$s/api/v4/schedules/%2$s/stop";
-	public static final String GET_RUN_STATUS_URI = "%1$s/api/v4/run/%2$s/status";
-	public static final String GET_RUN_ITEMS_IDS_URI = "%1$s/api/v4/run/%2$s/runItemIds";
-	public static final String GET_RUN_ITEM_URI = "%1$s/api/v4/runItems/%2$s";
-	public static final String GET_RUN_ITEM_KEYFRAMES_URI = "%1$s/api/v4/runItems/%2$s/keyframes";
+	public static final String GET_ALL_AVAILABLE_SCHEDULES_URI = "api/v4/schedules";
+	public static final String RUN_SCHEDULE_URI = "api/v4/schedules/%1$s/runNow";
+	public static final String STOP_RUN_URI = "api/v4/run/%1$s/stop";
+	public static final String STOP_SCHEDULE_PATH = "api/v4/schedules/%1$s/stop";
+	public static final String GET_RUN_STATUS_URI = "api/v4/run/%1$s/status";
+	public static final String GET_RUN_ITEMS_IDS_URI = "api/v4/run/%1$s/runItemIds";
+	public static final String GET_RUN_ITEM_URI = "api/v4/runItems/%1$s";
+	public static final String GET_RUN_ITEM_KEYFRAMES_URI = "api/v4/runItems/%1$s/keyframes";
 
 	public static final String INVALID_SCHEDULES = "INVALID SCHEDULES";
 	public static final String PLUGIN_NAME = "Leapwork";
@@ -76,6 +76,7 @@ public class Messages {
 	public static final String PORT_NUMBER_IS_INVALID = "Port number is invalid, setting to default %1$d";
 	public static final String TIME_DELAY_NUMBER_IS_INVALID = "Time delay number is invalid: %1$s, setting to default %2$s";
 	public static final String TIMEOUT_NUMBER_IS_INVALID = "Timeout number is invalid: %1$s, setting to default %2$s";
+	public static final String INVALID_CONTROLLER_URL = "Invalid controller URL. Provide either a hostname or a full URL.";
 	public static final String FULL_REPORT_FILE_PATH = "Creating report file by path: %1$s";
 	public static final String SCHEDULE_DISABLED = "Schedule %1$s[%2$s] is disabled";
 	public static final String INVALID_SCHEDULE_VARIABLE = "Failed to parse variable: %1$s";
